@@ -33,7 +33,7 @@ export default function ChatMessage({ message, index, onEdit, onRegenerate }: Ch
     });
 
     // 1. Pre-process Thinking blocks
-    let processed = text.replace(/<think>([\s\S]*?)<\/think>/g, (match, content) => {
+    let processed = text.replace(/<think>([\s\S]*?)<\/think>/g, (match: string, content: string) => {
       return `:::thought\n${content.trim()}\n:::`;
     });
 
@@ -65,7 +65,7 @@ export default function ChatMessage({ message, index, onEdit, onRegenerate }: Ch
     let html = md.render(processed);
 
     // 3. Post-process "thought" back to UI blocks
-    html = html.replace(/:::thought([\s\S]*?):::/g, (match, content) => {
+    html = html.replace(/:::thought([\s\S]*?):::/g, (match: string, content: string) => {
       return `<div class="thought-block">
         <div class="thought-header">Thought Process</div>
         <div class="thought-content">${content.trim()}</div>
