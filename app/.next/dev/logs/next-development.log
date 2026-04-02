@@ -1,0 +1,4 @@
+{"timestamp":"00:00:00.822","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:24.032","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:01:47.114","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:01:57.107","source":"Server","level":"ERROR","message":"[/api/ask] Error: Error: 401 Incorrect API key provided: your_ope************here. You can find your API key at https://platform.openai.com/account/api-keys."}

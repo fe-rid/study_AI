@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+:root {
+  /* DARK MODE (Default) */
+  --background: #212121;
+  --sidebar: #171717;
+  --foreground: #ececec;
+  --muted: #b4b4b4;
+  --border: rgba(255, 255, 255, 0.08);
+  --surface: #2f2f2f;
+  --surface-hover: #383838;
+  --user-bg: #2f2f2f;
+  --accent: #10a37f;
+  --error: #ef4444;
+}
+
+[data-theme="light"] {
+  /* LIGHT MODE */
+  --background: #ffffff;
+  --sidebar: #f9f9f9;
+  --foreground: #0d0d0d;
+  --muted: #6e6e6e;
+  --border: rgba(0, 0, 0, 0.08);
+  --surface: #f0f0f0;
+  --surface-hover: #e5e5e5;
+  --user-bg: #f4f4f4;
+  --accent: #10a37f;
+  --error: #dc2626;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root[data-theme="dark"] {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --sidebar: #111116;
+  --surface: #18181b;
+  --border: rgba(255, 255, 255, 0.04);
+  --muted: #71717a;
+  --user-bg: #111116;
+  --accent: #10a37f;
+  --accent-glow: rgba(16, 163, 127, 0.15);
+  
+  --glass-bg: rgba(17, 17, 22, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+:root[data-theme="light"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --sidebar: #ffffff;
+  --surface: #f1f5f9;
+  --border: rgba(0, 0, 0, 0.05);
+  --muted: #64748b;
+  --user-bg: #f1f5f9;
+  --accent: #10a37f;
+  --accent-glow: rgba(16, 163, 127, 0.08);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+@layer base {
+  body {
+    @apply font-[var(--font-inter)] selection:bg-[var(--accent)] selection:text-white;
+    height: 100%;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] shadow-2xl;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .mesh-gradient {
+    background: radial-gradient(at 0% 0%, var(--accent-glow) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0, transparent 50%),
+                radial-gradient(at 100% 100%, var(--accent-glow) 0, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0, transparent 50%);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+  opacity: 0.2;
+}
+
+/* Animations */
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-message {
+  animation: messageIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Premium Typography for Chat */
+.prose-chat h1 { @apply text-2xl font-black tracking-tight mb-4; }
+.prose-chat h2 { @apply text-xl font-bold tracking-tight mb-3 mt-6; }
+.prose-chat h3 { @apply text-lg font-bold tracking-tight mb-2 mt-4; }
+.prose-chat p { @apply text-[15.5px] leading-relaxed mb-4 opacity-100; white-space: pre-wrap; }
+.prose-chat ul { @apply list-disc list-inside mb-4 space-y-2 pl-2; }
+.prose-chat li { @apply text-[15.5px] opacity-90; }
+.prose-chat code { @apply px-1.5 py-0.5 rounded bg-[var(--surface)] text-[13px] font-mono border border-[var(--border)] text-[var(--accent)]; }
+.prose-chat pre { @apply my-6 p-5 rounded-2xl bg-[#0d0d12] border border-[var(--border)] overflow-x-auto shadow-inner; }
+.prose-chat pre code { @apply p-0 bg-transparent border-0 text-[#f4f4f5] font-mono text-[13.5px] leading-relaxed block; }
+.prose-chat blockquote { @apply border-l-4 border-[var(--accent)] pl-4 py-2 my-4 italic opacity-80 bg-[var(--surface)] rounded-r-xl; }
+
+/* DeepSeek Style Thought Blocks */
+.thought-block {
+  @apply my-4 border-l-2 border-[var(--muted)]/20 pl-4 py-1;
+}
+
+.thought-header {
+  @apply text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-2 flex items-center gap-2;
+}
+
+.thought-header::before {
+  content: "";
+  @apply w-1.5 h-1.5 rounded-full bg-[var(--muted)]/40 animate-pulse;
+}
+
+.thought-content {
+  @apply text-[13.5px] leading-relaxed text-[var(--muted)] italic;
+}
+
+/* Standard CSS for Production Stability - DeepSeek Reference Sync */
+.code-container {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background-color: #0d0d12;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.code-header {
+  padding: 0.75rem 1.25rem;
+  background-color: #1e1e24;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.code-lang {
+  text-transform: lowercase;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.6;
+  color: var(--foreground);
+}
+
+.code-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.copy-btn:hover {
+  opacity: 1;
+}
+
+.copy-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.7;
+}
+
+.code-container pre {
+  margin: 0;
+  padding: 1.5rem;
+  border-radius: 0;
+  border: none;
+  background-color: transparent !important;
+  overflow-x: auto;
+}
+
+.code-container pre code {
+  font-size: 13.5px;
+  line-height: 1.6;
+  display: block;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: #f4f4f5 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Global theme-specific property applications */
+.bg-sidebar { background-color: var(--sidebar); }
+.bg-surface { background-color: var(--surface); }
+.text-muted { color: var(--muted); }
+.border-divider { border-color: var(--border); }
