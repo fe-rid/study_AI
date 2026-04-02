@@ -44,11 +44,10 @@ export default function ChatInput({ value, onChange, onSubmit, isLoading }: Chat
       <div className="max-w-[768px] mx-auto w-full relative">
         
         <div 
-          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
-          className="relative group transition-all duration-300 rounded-[1.5rem] border flex items-end gap-3 px-4 py-3 focus-within:border-[var(--muted)]/40 focus-within:ring-1 focus-within:ring-[var(--muted)]/10 shadow-lg group-hover:shadow-[0_10px_40px_rgba(0,0,0,0.05)]"
+          className="relative group transition-all duration-300 rounded-[1.5rem] flex items-end gap-3 px-4 py-3 focus-within:ring-2 focus-within:ring-[var(--accent)]/10 shadow-lg group-hover:shadow-[0_10px_40px_rgba(0,0,0,0.05)] glass"
         >
           
-          <div className="mb-2 ml-1 opacity-20 group-focus-within:opacity-100 group-focus-within:text-[#10a37f] transition-all">
+          <div className="mb-2 ml-1 opacity-20 group-focus-within:opacity-100 group-focus-within:text-[var(--accent)] transition-all">
             <Sparkles size={16} strokeWidth={2.5} />
           </div>
 

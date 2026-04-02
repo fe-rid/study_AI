@@ -75,7 +75,13 @@ export default function ChatContainer({ messages, isLoading, onSuggestion, onEdi
         ) : (
           <div className="flex flex-col w-full">
             {messages.map((msg, i) => (
-              <ChatMessage key={i} message={msg} index={i} />
+              <ChatMessage 
+                key={i} 
+                message={msg} 
+                index={i} 
+                onEdit={onEdit}
+                onRegenerate={onRegenerate}
+              />
             ))}
           </div>
         )}

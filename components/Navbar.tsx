@@ -11,8 +11,7 @@ interface NavbarProps {
 export default function Navbar({ theme, onToggleTheme, onClearChat }: NavbarProps) {
   return (
     <nav 
-      style={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }}
-      className="h-14 flex items-center justify-between px-4 border-b relative z-[100] transition-colors duration-300"
+      className="sticky top-0 h-14 flex items-center justify-between px-4 z-[100] transition-all duration-300 glass"
     >
       
       {/* Model Indicator / Selector */}

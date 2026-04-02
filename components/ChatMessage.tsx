@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Copy, Check, User, Sparkles, Edit2, RefreshCw } from "lucide-react";
 import type { Message } from "@/lib/api";
 
@@ -11,39 +11,81 @@ interface ChatMessageProps {
   onRegenerate?: (index: number) => void;
 }
 
-/** Markdown Renderer — Theme Aware */
-function renderMarkdown(text: string): string {
-  return text
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-    .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/```[\w]*\n?([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
-    .replace(/^\s*[-*•] (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>(\n|$))+/g, (match) => `<ul>${match}</ul>`)
-    .replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>")
-    .split(/\n\n+/)
-    .map((block) => {
-      if (
-        block.startsWith("<h") ||
-        block.startsWith("<ul") ||
-        block.startsWith("<pre") ||
-        block.startsWith("<blockquote") ||
-        block.startsWith("<li")
-      ) return block;
-      return `<p>${block.replace(/\n/g, "<br/>")}</p>`;
-    })
-    .join("\n");
-}
-
 export default function ChatMessage({ message, index, onEdit, onRegenerate }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.content);
+  const [engineReady, setEngineReady] = useState(false);
   const isUser = message.role === "user";
+
+  /** Markdown Renderer — Now component-aware and reactive */
+  const getHtml = (text: string): string => {
+    if (!text) return "";
+    const MarkdownIt = (window as any).markdownit;
+    if (!MarkdownIt) {
+       return `<p style="white-space: pre-wrap;">${text}</p>`; // Readable fallback
+    }
+
+    const md = new MarkdownIt({
+      html: true,
+      linkify: true,
+      typographer: true,
+    });
+
+    // 1. Pre-process Thinking blocks
+    let processed = text.replace(/<think>([\s\S]*?)<\/think>/g, (match, content) => {
+      return `:::thought\n${content.trim()}\n:::`;
+    });
+
+    // 2. Customize Code Blocks
+    md.renderer.rules.fence = (tokens: any, idx: any) => {
+      const token = tokens[idx];
+      const lang = (token.info || "code").trim();
+      const content = token.content.trim();
+      const escapedCode = content.replace(/`/g, '\\`').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      
+      return `<div class="code-container">
+        <div class="code-header">
+          <span class="code-lang">${lang}</span>
+          <div class="code-actions">
+            <button onclick="navigator.clipboard.writeText(\`${escapedCode}\`).then(() => { this.innerHTML='<svg class=\'w-3 h-3 text-green-500\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2.5\' d=\'M5 13l4 4L19 7\'></path></svg> Copied!'; setTimeout(() => this.innerHTML='<svg class=\'w-3 h-3\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2.2\' d=\'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2\'></path></svg> Copy', 2000); })" class="copy-btn">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2"></path></svg>
+              Copy
+            </button>
+            <button onclick="const blob = new Blob([\`${escapedCode}\`], {type: 'text/plain'}); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'studyai_code.${lang === 'code' ? 'txt' : lang}'; a.click(); window.URL.revokeObjectURL(url);" class="copy-btn">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 10l5 5m0 0l5-5m-5 5V3"></path></svg>
+              Download
+            </button>
+          </div>
+        </div>
+        <pre><code class="language-${lang}">${content}</code></pre>
+      </div>`;
+    };
+
+    let html = md.render(processed);
+
+    // 3. Post-process "thought" back to UI blocks
+    html = html.replace(/:::thought([\s\S]*?):::/g, (match, content) => {
+      return `<div class="thought-block">
+        <div class="thought-header">Thought Process</div>
+        <div class="thought-content">${content.trim()}</div>
+      </div>`;
+    });
+
+    return html;
+  };
+
+  useEffect(() => {
+    const checkState = () => {
+      if ((window as any).markdownit && (window as any).hljs) {
+        setEngineReady(true);
+        setTimeout(() => (window as any).hljs.highlightAll(), 50);
+      } else {
+        setTimeout(checkState, 100);
+      }
+    };
+    if (!isUser) checkState();
+  }, [message.content, isUser]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message.content);
@@ -126,7 +168,7 @@ export default function ChatMessage({ message, index, onEdit, onRegenerate }: Ch
             ) : (
                 <div
                 className="prose-chat"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
+                dangerouslySetInnerHTML={{ __html: getHtml(message.content) }}
               />
             )}
           </div>
